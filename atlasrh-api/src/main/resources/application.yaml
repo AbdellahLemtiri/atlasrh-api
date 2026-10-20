@@ -1,0 +1,12 @@
+
+spring:
+  application:
+    name: atlasrh-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/atlasrh_db
+    username: postgres
+    password: your_password
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8080
