@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 
@@ -32,7 +33,5 @@ public class Department {
     @OneToMany 
     @Builder.Default
     private List<Employee> employees =  new ArrayList<>();
-
-
 
 }
