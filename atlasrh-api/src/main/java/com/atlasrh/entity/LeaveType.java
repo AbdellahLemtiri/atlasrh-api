@@ -21,6 +21,4 @@ public class LeaveType {
 
     @Column(name = "default_days_per_year", nullable = false)
     private Integer defaultDaysPerYear;
-
-    
 }
