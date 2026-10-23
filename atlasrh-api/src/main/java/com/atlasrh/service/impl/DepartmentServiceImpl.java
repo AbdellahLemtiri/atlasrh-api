@@ -20,8 +20,8 @@ import java.util.List;
 @Transactional
 public class DepartmentServiceImpl implements DepartmentService {
 
-    private DepartmentRepository departmentRepository;
-    private DepartmentMapper departmentMapper;
+    private final DepartmentRepository departmentRepository;
+    private final DepartmentMapper departmentMapper;
 
     @Override
     public DepartmentResponseDTO createDepartment(DepartmentRequestDTO departmentRequestDTO) {
