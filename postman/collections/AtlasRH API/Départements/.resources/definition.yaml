@@ -1,0 +1,3 @@
+$kind: collection
+name: "Départements"
+description: "Gestion des départements : créer, consulter, modifier et supprimer."

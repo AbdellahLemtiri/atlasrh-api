@@ -1,0 +1,8 @@
+$kind: collection
+name: AtlasRH API
+description: |-
+  Collection Postman pour l'API AtlasRH.
+  Couvre la gestion des départements, des employés et des contrats.
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
