@@ -27,15 +27,24 @@ public class DepartementController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DepartmentResponseDTO>> getAll()
-    {
+    public ResponseEntity<List<DepartmentResponseDTO>> getAll() {
         return ResponseEntity.ok(departmentService.getAllDepartments());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DepartmentResponseDTO> getById(@PathVariable Long id)
-    {
+    public ResponseEntity<DepartmentResponseDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(departmentService.getDepartmentById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DepartmentResponseDTO> update(@PathVariable Long id, @Valid @RequestBody DepartmentRequestDTO dto) {
+        return ResponseEntity.ok(departmentService.updateDepartment(id, dto));
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        departmentService.deleteDepartment(id);
+        return ResponseEntity.noContent().build();
     }
 
 
