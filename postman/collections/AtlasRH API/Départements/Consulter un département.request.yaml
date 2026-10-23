@@ -1,0 +1,9 @@
+$kind: http-request
+name: "Consulter un département"
+method: GET
+url: '{{base_url}}/api/departments/:id'
+order: 3000
+pathVariables:
+  - key: id
+    value: '1'
+    description: "Identifiant du département"

@@ -1,0 +1,5 @@
+$kind: http-request
+name: "Lister tous les départements"
+method: GET
+url: '{{base_url}}/api/departments'
+order: 2000

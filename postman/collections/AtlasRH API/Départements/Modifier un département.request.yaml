@@ -1,0 +1,19 @@
+$kind: http-request
+name: "Modifier un département"
+method: PUT
+url: '{{base_url}}/api/departments/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '1'
+    description: "Identifiant du département"
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Ressources Humaines",
+      "description": "Description mise à jour du département RH."
+    }

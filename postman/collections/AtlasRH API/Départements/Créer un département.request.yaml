@@ -1,0 +1,15 @@
+$kind: http-request
+name: "Créer un département"
+method: POST
+url: '{{base_url}}/api/departments'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Ressources Humaines",
+      "description": "Département chargé de la gestion du personnel et des recrutements."
+    }
