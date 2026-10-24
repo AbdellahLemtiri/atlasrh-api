@@ -1,5 +1,65 @@
 $kind: http-request
 name: "Lister tous les employés"
 method: GET
-url: '{{base_url}}/api/employees'
+url: '{{base_url}}/api/employees?page=1&limit=10&sort=lastName&order=asc'
 order: 2000
+queryParams:
+  - key: page
+    value: '1'
+    description: "Numéro de page (pagination)"
+  - key: limit
+    value: '10'
+    description: "Nombre d'employés par page"
+  - key: sort
+    value: 'lastName'
+    description: "Champ de tri (ex: lastName, hireDate)"
+  - key: order
+    value: 'asc'
+    description: "Ordre de tri : asc ou desc"
+  - key: search
+    value: ''
+    description: "Recherche par nom"
+    disabled: true
+  - key: departmentId
+    value: ''
+    description: "Filtrer par département"
+    disabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Liste des employés récupérée", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient une liste d'employés", function () {
+          const json = pm.response.json();
+          // Supporte { data: [...] } ou tableau direct
+          const list = Array.isArray(json) ? json : json.data;
+          pm.expect(list).to.be.an("array");
+      });
+
+      pm.test("La réponse contient les métadonnées de pagination", function () {
+          const json = pm.response.json();
+          // Vérifie la présence de métadonnées de pagination si l'API les retourne
+          if (!Array.isArray(json)) {
+              pm.expect(json).to.have.any.keys("total", "page", "limit", "meta", "pagination");
+          }
+      });
+
+      pm.test("Chaque employé contient les champs essentiels", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : json.data;
+          if (list && list.length > 0) {
+              list.forEach(function (emp) {
+                  pm.expect(emp).to.have.property("id");
+                  pm.expect(emp).to.have.property("firstName");
+                  pm.expect(emp).to.have.property("lastName");
+                  pm.expect(emp).to.have.property("email");
+              });
+          }
+      });

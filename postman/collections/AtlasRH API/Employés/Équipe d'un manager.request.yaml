@@ -1,0 +1,49 @@
+$kind: http-request
+name: "Équipe d'un manager"
+method: GET
+url: '{{base_url}}/api/employees/:id/team'
+order: 5000
+pathVariables:
+  - key: id
+    value: '{{employee_id}}'
+    description: "Identifiant du manager"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Équipe du manager récupérée", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient une liste de membres", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : json.data;
+          pm.expect(list).to.be.an("array");
+      });
+
+      pm.test("Chaque membre de l'équipe a les champs essentiels", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : json.data;
+          if (list && list.length > 0) {
+              list.forEach(function (member) {
+                  pm.expect(member).to.have.property("id");
+                  pm.expect(member).to.have.property("firstName");
+                  pm.expect(member).to.have.property("lastName");
+              });
+          }
+      });
+
+      pm.test("Aucun membre n'est le manager lui-même", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : json.data;
+          const managerId = pm.collectionVariables.get("employee_id");
+          if (list && list.length > 0 && managerId) {
+              list.forEach(function (member) {
+                  pm.expect(String(member.id)).to.not.eql(String(managerId));
+              });
+          }
+      });

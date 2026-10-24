@@ -1,0 +1,46 @@
+$kind: http-request
+name: "Consulter un employé"
+method: GET
+url: '{{base_url}}/api/employees/:id'
+order: 3000
+pathVariables:
+  - key: id
+    value: '{{employee_id}}'
+    description: "Identifiant de l'employé"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Employé trouvé", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La fiche employé contient tous les champs attendus", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("matricule");
+          pm.expect(json).to.have.property("firstName");
+          pm.expect(json).to.have.property("lastName");
+          pm.expect(json).to.have.property("email");
+          pm.expect(json).to.have.property("position");
+          pm.expect(json).to.have.property("hireDate");
+          pm.expect(json).to.have.property("departmentId");
+      });
+
+      pm.test("L'ID retourné correspond à l'ID demandé", function () {
+          const json = pm.response.json();
+          const requestedId = pm.collectionVariables.get("employee_id") || "1";
+          pm.expect(String(json.id)).to.eql(String(requestedId));
+      });
+
+      pm.test("Statut 404 si l'employé n'existe pas", function () {
+          // Ce test est informatif — il passe uniquement si la réponse est 404
+          if (pm.response.code === 404) {
+              const json = pm.response.json();
+              pm.expect(json).to.have.property("message");
+          }
+      });

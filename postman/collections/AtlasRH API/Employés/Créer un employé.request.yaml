@@ -19,3 +19,42 @@ body:
       "departmentId": 1,
       "managerId": null
     }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 201 - Employé créé avec succès", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("L'employé créé contient les champs obligatoires", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("matricule");
+          pm.expect(json).to.have.property("firstName");
+          pm.expect(json).to.have.property("lastName");
+          pm.expect(json).to.have.property("email");
+          pm.expect(json).to.have.property("position");
+          pm.expect(json).to.have.property("hireDate");
+          pm.expect(json).to.have.property("departmentId");
+      });
+
+      pm.test("Le matricule correspond à la valeur envoyée", function () {
+          const json = pm.response.json();
+          pm.expect(json.matricule).to.eql("EMP-001");
+      });
+
+      pm.test("L'email correspond à la valeur envoyée", function () {
+          const json = pm.response.json();
+          pm.expect(json.email).to.eql("youssef.alami@atlasrh.ma");
+      });
+
+      // Sauvegarder l'ID pour les requêtes suivantes
+      const json = pm.response.json();
+      if (json && json.id) {
+          pm.collectionVariables.set("employee_id", json.id);
+      }
