@@ -1,0 +1,21 @@
+$kind: http-request
+name: "Créer un employé"
+method: POST
+url: '{{base_url}}/api/employees'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "matricule": "EMP-001",
+      "firstName": "Youssef",
+      "lastName": "Alami",
+      "email": "youssef.alami@atlasrh.ma",
+      "position": "Développeur Backend",
+      "hireDate": "2024-01-15",
+      "departmentId": 1,
+      "managerId": null
+    }
