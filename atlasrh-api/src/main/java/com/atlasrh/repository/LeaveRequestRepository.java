@@ -15,6 +15,20 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
 
     List<LeaveRequest> findByEmployeeManagerIdAndStatus(Long managerId, LeaveStatus status);
 
+    List<LeaveRequest> findByEmployeeIdOrderByStartDateDesc(Long employeeId);
+
+    List<LeaveRequest> findByEmployeeIdAndStatusOrderByStartDateDesc(Long employeeId, LeaveStatus status);
+
+    @Query("SELECT COUNT(lr) > 0 FROM LeaveRequest lr " +
+            "WHERE lr.employee.id = :employeeId " +
+            "AND lr.status NOT IN ('ANNULEE', 'REFUSEE') " +
+            "AND (:startDate <= lr.endDate AND :endDate >= lr.startDate)")
+    boolean hasOverlappingRequests(
+            @Param("employeeId") Long employeeId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
     @Query("SELECT COALESCE(SUM(lr.businessDaysCount), 0) FROM LeaveRequest lr " +
             "WHERE lr.employee.id = :employeeId " +
             "AND lr.leaveType.id = :leaveTypeId " +
@@ -25,6 +39,4 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             @Param("leaveTypeId") Long leaveTypeId,
             @Param("year") int year
     );
-
-
 }
