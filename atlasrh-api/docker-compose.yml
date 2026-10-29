@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: atlasrh-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: atlasrh_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d atlasrh_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - atlasrh-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atlasrh-api
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/atlasrh_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgrespassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_LIQUIBASE_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    networks:
+      - atlasrh-network
+
+volumes:
+  postgres_data:
+
+networks:
+  atlasrh-network:
+    driver: bridge
