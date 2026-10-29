@@ -1,0 +1,32 @@
+$kind: http-request
+name: "Conflit - Nom dupliqué"
+method: POST
+url: '{{base_url}}/api/departments'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Informatique",
+      "description": "Tentative de création d'un département avec un nom déjà existant"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 409 - Conflit nom dupliqué", function () {
+          pm.response.to.have.status(409);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient un message d'erreur", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("message");
+          pm.expect(json.message).to.be.a("string").and.not.empty;
+      });

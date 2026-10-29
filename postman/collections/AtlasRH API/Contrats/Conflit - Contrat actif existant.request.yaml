@@ -1,0 +1,34 @@
+$kind: http-request
+name: "Conflit - Contrat actif existant"
+method: POST
+url: '{{base_url}}/api/contracts'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "employeeId": "{{employee_id}}",
+      "type": "CDD",
+      "startDate": "2024-06-01",
+      "grossSalary": 12000.00
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 409 - Conflit : contrat actif déjà existant", function () {
+          pm.response.to.have.status(409);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient un message d'erreur explicite", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("message");
+          pm.expect(json.message).to.be.a("string").and.not.empty;
+      });

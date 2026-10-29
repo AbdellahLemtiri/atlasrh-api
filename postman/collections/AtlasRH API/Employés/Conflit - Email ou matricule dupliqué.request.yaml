@@ -1,0 +1,38 @@
+$kind: http-request
+name: "Conflit - Email ou matricule dupliqué"
+method: POST
+url: '{{base_url}}/api/employees'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "matricule": "EMP002",
+      "firstName": "Doublon",
+      "lastName": "Test",
+      "email": "youssef.alami@atlasrh.ma",
+      "position": "Développeur",
+      "hireDate": "2024-06-01",
+      "departmentId": "{{department_id}}",
+      "managerId": null
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 409 - Conflit email ou matricule dupliqué", function () {
+          pm.response.to.have.status(409);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient un message d'erreur", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("message");
+          pm.expect(json.message).to.be.a("string").and.not.empty;
+      });

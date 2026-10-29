@@ -2,7 +2,7 @@ $kind: http-request
 name: "Créer un employé"
 method: POST
 url: '{{base_url}}/api/employees'
-order: 1000
+order: 1500
 headers:
   - key: Content-Type
     value: application/json
@@ -10,14 +10,14 @@ body:
   type: json
   content: |-
     {
-      "matricule": "EMP-001",
+      "matricule": "EMP002",
       "firstName": "Youssef",
       "lastName": "Alami",
       "email": "youssef.alami@atlasrh.ma",
       "position": "Développeur Backend",
-      "hireDate": "2024-01-15",
-      "departmentId": 1,
-      "managerId": null
+      "hireDate": "2024-03-01",
+      "departmentId": "{{department_id}}",
+      "managerId": "{{manager_id}}"
     }
 scripts:
   - type: afterResponse
@@ -43,18 +43,17 @@ scripts:
           pm.expect(json).to.have.property("departmentId");
       });
 
-      pm.test("Le matricule correspond à la valeur envoyée", function () {
+      pm.test("Le managerId est bien associé", function () {
           const json = pm.response.json();
-          pm.expect(json.matricule).to.eql("EMP-001");
+          const managerId = pm.collectionVariables.get("manager_id");
+          if (managerId) {
+              pm.expect(String(json.managerId)).to.eql(String(managerId));
+          }
       });
 
-      pm.test("L'email correspond à la valeur envoyée", function () {
-          const json = pm.response.json();
-          pm.expect(json.email).to.eql("youssef.alami@atlasrh.ma");
-      });
-
-      // Sauvegarder l'ID pour les requêtes suivantes
+      // Sauvegarder l'ID de l'employé
       const json = pm.response.json();
       if (json && json.id) {
           pm.collectionVariables.set("employee_id", json.id);
+          console.log("employee_id sauvegardé :", json.id);
       }

@@ -3,3 +3,31 @@ name: "Lister tous les départements"
 method: GET
 url: '{{base_url}}/api/departments'
 order: 2000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Liste des départements récupérée", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient une liste de départements", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || json);
+          pm.expect(list).to.be.an("array");
+      });
+
+      pm.test("Chaque département contient les champs essentiels", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || []);
+          if (list && list.length > 0) {
+              list.forEach(function (dept) {
+                  pm.expect(dept).to.have.property("id");
+                  pm.expect(dept).to.have.property("name");
+              });
+          }
+      });

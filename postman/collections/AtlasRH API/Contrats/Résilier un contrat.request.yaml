@@ -1,0 +1,43 @@
+$kind: http-request
+name: "Résilier un contrat"
+method: PATCH
+url: '{{base_url}}/api/contracts/:contractId/terminate'
+order: 3000
+pathVariables:
+  - key: contractId
+    value: '{{contract_id}}'
+    description: "Identifiant du contrat à résilier"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Contrat résilié avec succès", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("Le contrat contient les champs obligatoires après résiliation", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("employeeId");
+          pm.expect(json).to.have.property("type");
+      });
+
+      pm.test("Le statut du contrat indique qu'il est terminé", function () {
+          const json = pm.response.json();
+          // Accepte différentes valeurs selon l'implémentation
+          if (json.status) {
+              const terminated = ["TERMINATED", "RESILIÉ", "INACTIVE", "ENDED"];
+              pm.expect(terminated).to.include(json.status.toUpperCase());
+          }
+      });
+
+      pm.test("Statut 404 si le contrat n'existe pas", function () {
+          if (pm.response.code === 404) {
+              const json = pm.response.json();
+              pm.expect(json).to.have.property("message");
+          }
+      });

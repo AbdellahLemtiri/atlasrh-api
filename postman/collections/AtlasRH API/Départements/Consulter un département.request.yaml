@@ -5,5 +5,38 @@ url: '{{base_url}}/api/departments/:id'
 order: 3000
 pathVariables:
   - key: id
-    value: '1'
+    value: '{{department_id}}'
     description: "Identifiant du département"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Département trouvé", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("Le département contient les champs obligatoires", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("name");
+          pm.expect(json).to.have.property("description");
+      });
+
+      pm.test("L'ID retourné correspond à l'ID demandé", function () {
+          const json = pm.response.json();
+          const requestedId = pm.collectionVariables.get("department_id");
+          if (requestedId) {
+              pm.expect(String(json.id)).to.eql(String(requestedId));
+          }
+      });
+
+      pm.test("Statut 404 si le département n'existe pas", function () {
+          if (pm.response.code === 404) {
+              const json = pm.response.json();
+              pm.expect(json).to.have.property("message");
+          }
+      });

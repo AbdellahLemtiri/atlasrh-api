@@ -1,21 +1,18 @@
 $kind: http-request
 name: "Lister tous les employés"
 method: GET
-url: '{{base_url}}/api/employees?page=1&limit=10&sort=lastName&order=asc'
+url: '{{base_url}}/api/employees'
 order: 2000
 queryParams:
   - key: page
-    value: '1'
-    description: "Numéro de page (pagination)"
-  - key: limit
+    value: '0'
+    description: "Numéro de page (Spring Pageable, commence à 0)"
+  - key: size
     value: '10'
     description: "Nombre d'employés par page"
   - key: sort
-    value: 'lastName'
-    description: "Champ de tri (ex: lastName, hireDate)"
-  - key: order
-    value: 'asc'
-    description: "Ordre de tri : asc ou desc"
+    value: 'lastName,asc'
+    description: "Champ et ordre de tri"
   - key: search
     value: ''
     description: "Recherche par nom"

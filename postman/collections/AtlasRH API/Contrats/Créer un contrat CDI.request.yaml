@@ -1,0 +1,54 @@
+$kind: http-request
+name: "Créer un contrat CDI"
+method: POST
+url: '{{base_url}}/api/contracts'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "employeeId": "{{employee_id}}",
+      "type": "CDI",
+      "startDate": "2024-01-01",
+      "grossSalary": 15000.00
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 201 - Contrat créé avec succès", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("Le contrat contient les champs obligatoires", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("employeeId");
+          pm.expect(json).to.have.property("type");
+          pm.expect(json).to.have.property("startDate");
+          pm.expect(json).to.have.property("grossSalary");
+      });
+
+      pm.test("Le type de contrat est CDI", function () {
+          const json = pm.response.json();
+          pm.expect(json.type).to.eql("CDI");
+      });
+
+      pm.test("Le salaire brut correspond à la valeur envoyée", function () {
+          const json = pm.response.json();
+          pm.expect(json.grossSalary).to.eql(15000.00);
+      });
+
+      // Sauvegarder l'ID du contrat
+      const json = pm.response.json();
+      if (json && json.id) {
+          pm.collectionVariables.set("contract_id", json.id);
+          console.log("contract_id sauvegardé :", json.id);
+      }

@@ -1,0 +1,51 @@
+$kind: http-request
+name: "Lister les demandes en attente"
+method: GET
+url: '{{base_url}}/api/manager/:managerId/pending-requests'
+order: 1000
+pathVariables:
+  - key: managerId
+    value: '{{manager_id}}'
+    description: "Identifiant du manager"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Demandes en attente récupérées", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient une liste de demandes", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || []);
+          pm.expect(list).to.be.an("array");
+      });
+
+      pm.test("Chaque demande contient les champs essentiels", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || []);
+          if (list && list.length > 0) {
+              list.forEach(function (req) {
+                  pm.expect(req).to.have.property("id");
+                  pm.expect(req).to.have.property("status");
+              });
+              // Sauvegarder le premier requestId pour les tests suivants
+              pm.collectionVariables.set("request_id", list[0].id);
+              console.log("request_id sauvegardé :", list[0].id);
+          }
+      });
+
+      pm.test("Toutes les demandes ont le statut EN_ATTENTE", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || []);
+          if (list && list.length > 0) {
+              list.forEach(function (req) {
+                  const pending = ["EN_ATTENTE", "PENDING", "SOUMISE"];
+                  pm.expect(pending).to.include(req.status.toUpperCase());
+              });
+          }
+      });

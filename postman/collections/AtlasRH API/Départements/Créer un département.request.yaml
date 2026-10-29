@@ -10,6 +10,36 @@ body:
   type: json
   content: |-
     {
-      "name": "Ressources Humaines",
-      "description": "Département chargé de la gestion du personnel et des recrutements."
+      "name": "Informatique",
+      "description": "IT & Dev"
     }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 201 - Département créé avec succès", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("Le département créé contient les champs obligatoires", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("name");
+          pm.expect(json).to.have.property("description");
+      });
+
+      pm.test("Le nom correspond à la valeur envoyée", function () {
+          const json = pm.response.json();
+          pm.expect(json.name).to.eql("Informatique");
+      });
+
+      // Sauvegarder l'ID pour les requêtes suivantes
+      const json = pm.response.json();
+      if (json && json.id) {
+          pm.collectionVariables.set("department_id", json.id);
+          console.log("department_id sauvegardé :", json.id);
+      }

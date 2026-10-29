@@ -1,0 +1,51 @@
+$kind: http-request
+name: "Historique des contrats d'un employé"
+method: GET
+url: '{{base_url}}/api/contracts/employee/:employeeId'
+order: 4000
+pathVariables:
+  - key: employeeId
+    value: '{{employee_id}}'
+    description: "Identifiant de l'employé"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Historique des contrats récupéré", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient une liste de contrats", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || []);
+          pm.expect(list).to.be.an("array");
+      });
+
+      pm.test("Chaque contrat contient les champs essentiels", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || []);
+          if (list && list.length > 0) {
+              list.forEach(function (contract) {
+                  pm.expect(contract).to.have.property("id");
+                  pm.expect(contract).to.have.property("type");
+                  pm.expect(contract).to.have.property("startDate");
+                  pm.expect(contract).to.have.property("grossSalary");
+              });
+          }
+      });
+
+      pm.test("Les contrats sont triés par date décroissante", function () {
+          const json = pm.response.json();
+          const list = Array.isArray(json) ? json : (json.content || json.data || []);
+          if (list && list.length > 1) {
+              for (let i = 0; i < list.length - 1; i++) {
+                  const dateA = new Date(list[i].startDate);
+                  const dateB = new Date(list[i + 1].startDate);
+                  pm.expect(dateA.getTime()).to.be.at.least(dateB.getTime());
+              }
+          }
+      });

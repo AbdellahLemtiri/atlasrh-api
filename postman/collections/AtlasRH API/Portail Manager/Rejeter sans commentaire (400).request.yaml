@@ -1,0 +1,35 @@
+$kind: http-request
+name: "Rejeter sans commentaire (400)"
+method: PATCH
+url: '{{base_url}}/api/manager/leave-requests/:requestId/decision'
+order: 3000
+pathVariables:
+  - key: requestId
+    value: '{{request_id}}'
+    description: "Identifiant de la demande de congé"
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "status": "REJETEE"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 400 ou 409 - Rejet sans commentaire refusé", function () {
+          pm.expect([400, 409]).to.include(pm.response.code);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La réponse contient un message d'erreur", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("message");
+          pm.expect(json.message).to.be.a("string").and.not.empty;
+      });

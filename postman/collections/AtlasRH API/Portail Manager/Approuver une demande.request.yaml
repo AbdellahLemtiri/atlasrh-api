@@ -1,0 +1,42 @@
+$kind: http-request
+name: "Approuver une demande"
+method: PATCH
+url: '{{base_url}}/api/manager/leave-requests/:requestId/decision'
+order: 2000
+pathVariables:
+  - key: requestId
+    value: '{{request_id}}'
+    description: "Identifiant de la demande de congé"
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "status": "APPROUVEE",
+      "comment": "Demande approuvée."
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Demande approuvée avec succès", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("La demande contient les champs obligatoires", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("status");
+      });
+
+      pm.test("Le statut de la demande est APPROUVEE", function () {
+          const json = pm.response.json();
+          const approved = ["APPROUVEE", "APPROVED", "APPROUVÉE"];
+          pm.expect(approved).to.include(json.status.toUpperCase());
+      });

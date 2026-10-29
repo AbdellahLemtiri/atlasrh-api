@@ -1,11 +1,11 @@
 $kind: http-request
 name: "Équipe d'un manager"
 method: GET
-url: '{{base_url}}/api/employees/:id/team'
+url: '{{base_url}}/api/employees/manager/:managerId/team'
 order: 5000
 pathVariables:
-  - key: id
-    value: '{{employee_id}}'
+  - key: managerId
+    value: '{{manager_id}}'
     description: "Identifiant du manager"
 scripts:
   - type: afterResponse

@@ -5,7 +5,7 @@ url: '{{base_url}}/api/departments/:id'
 order: 4000
 pathVariables:
   - key: id
-    value: '1'
+    value: '{{department_id}}'
     description: "Identifiant du département"
 headers:
   - key: Content-Type
@@ -14,6 +14,29 @@ body:
   type: json
   content: |-
     {
-      "name": "Ressources Humaines",
-      "description": "Description mise à jour du département RH."
+      "name": "Informatique",
+      "description": "IT, Dev & Infrastructure"
     }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 200 - Département modifié avec succès", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("La réponse est un objet JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("Le département modifié contient les champs obligatoires", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("name");
+          pm.expect(json).to.have.property("description");
+      });
+
+      pm.test("La description a bien été mise à jour", function () {
+          const json = pm.response.json();
+          pm.expect(json.description).to.eql("IT, Dev & Infrastructure");
+      });

@@ -5,5 +5,30 @@ url: '{{base_url}}/api/departments/:id'
 order: 5000
 pathVariables:
   - key: id
-    value: '1'
+    value: '{{department_id}}'
     description: "Identifiant du département à supprimer"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Statut 204 - Département supprimé avec succès", function () {
+          pm.response.to.have.status(204);
+      });
+
+      pm.test("Le corps de la réponse est vide", function () {
+          pm.expect(pm.response.text()).to.be.empty;
+      });
+
+      pm.test("Statut 404 si le département n'existe pas", function () {
+          if (pm.response.code === 404) {
+              const json = pm.response.json();
+              pm.expect(json).to.have.property("message");
+          }
+      });
+
+      pm.test("Statut 409 si le département contient des employés", function () {
+          if (pm.response.code === 409) {
+              const json = pm.response.json();
+              pm.expect(json).to.have.property("message");
+          }
+      });
